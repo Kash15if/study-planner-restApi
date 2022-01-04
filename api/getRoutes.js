@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 router.get("/alltask", async (req, res) => {
-  res.send("Hello World");
+  res.send("alltask");
 });
 
 router.get("/onetask:id", async (req, res) => {
@@ -10,11 +10,11 @@ router.get("/onetask:id", async (req, res) => {
 });
 
 router.get("/predefined", async (req, res) => {
-  res.send("Hello World");
+  res.send({});
 });
 
 router.get("/archived", async (req, res) => {
-  res.send("Hello World");
+  res.send({});
 });
 
 module.exports = router;
