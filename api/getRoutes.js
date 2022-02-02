@@ -19,7 +19,13 @@ router.get("/onetask/:id", async (req, res) => {
     'SELECT uid, taskid, task, subject, "desc", deadline, completed, "precentComp" FROM public."Task" where taskid = $1;',
     [id]
   );
-  res.send(out.rows);
+
+  const out2 = await pool.query(
+    'SELECT uid, taskid, task, subject, "desc", deadline, completed, "precentComp" FROM public."Task" where taskid = $1;',
+    [id]
+  );
+
+  res.send({ teskDets: out.rows[0], suTasks: out2.rows });
 });
 
 router.get("/predefined", async (req, res) => {
