@@ -52,4 +52,12 @@ router.get("/subtask", async (req, res) => {
   res.send(out.rows);
 });
 
+router.get("/allsubject", async (req, res) => {
+  const out = await pool.query(
+    'SELECT uid, taskid, task, subject, "desc", deadline, completed, "precentComp" FROM public.archivedtask',
+    []
+  );
+  res.send(out.rows);
+});
+
 module.exports = router;
