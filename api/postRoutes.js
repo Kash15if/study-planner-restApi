@@ -15,24 +15,24 @@ var format = require("pg-format");
 // });
 
 router.post("/newtask", async (req, res) => {
-  const taskDets = req.query.taskDets;
-  const subTasks = req.query.subTasks;
+  const taskDets = req.body.taskDets;
+  const subTasks = req.body.subTasks;
 
-  console.log(req.body);
-  // const out = await pool.query(
-  //   'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-  //   []
-  // );
+  // console.log(req.body);
+  const out = await pool.query(
+    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+    []
+  );
 
-  // const out2 = await pool.query(
-  //   format(
-  //     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
-  //     subTasks
-  //   ),
-  //   []
-  // );
+  const out2 = await pool.query(
+    format(
+      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
+      subTasks
+    ),
+    []
+  );
 
-  // res.send(out2);
+  res.send(out2);
 });
 
 router.post("/updatetask", async (req, res) => {
