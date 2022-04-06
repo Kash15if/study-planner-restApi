@@ -22,7 +22,9 @@ router.post("/newtask", async (req, res) => {
   const taskDets = data.taskDets;
   const subTasks = data.subTasks;
 
-  console.log(taskDets);
+  const stArray = subTasks.map((y) => Object.values(y));
+
+  console.log(subTasks);
   const out = await pool.query(
     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
     [
@@ -40,7 +42,7 @@ router.post("/newtask", async (req, res) => {
   const out2 = await pool.query(
     format(
       'INSERT INTO public."subtask"(taskid, subtaskid, subtask, "desc", link, completed) VALUES %L',
-      subTasks
+      stArray
     ),
     []
   );

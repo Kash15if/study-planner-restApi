@@ -25,7 +25,7 @@ router.get("/onetask/:id", async (req, res) => {
     [id]
   );
 
-  res.send({ taskDets: out.rows[0], suTasks: out2.rows });
+  res.send({ taskDets: out.rows[0], subTasks: out2.rows });
 });
 
 router.get("/predefined", async (req, res) => {
