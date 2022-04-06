@@ -14,25 +14,38 @@ var format = require("pg-format");
 //   console.log(result);
 // });
 
-router.post("/newtask", async (req, res) => {
-  const taskDets = req.body.taskDets;
-  const subTasks = req.body.subTasks;
+//importing db-pool for query
+const pool = require("../models/dbCon");
 
-  // console.log(req.body);
+router.post("/newtask", async (req, res) => {
+  const data = req.body;
+  const taskDets = data.taskDets;
+  const subTasks = data.subTasks;
+
+  console.log(taskDets);
   const out = await pool.query(
     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-    []
+    [
+      taskDets.uid,
+      taskDets.taskid,
+      taskDets.task,
+      taskDets.subject,
+      taskDets.desc,
+      taskDets.deadline,
+      taskDets.completed,
+      taskDets.precentComp,
+    ]
   );
 
   const out2 = await pool.query(
     format(
-      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
+      'INSERT INTO public."subtask"(taskid, subtaskid, subtask, "desc", link, completed) VALUES %L',
       subTasks
     ),
     []
   );
 
-  res.send(out2);
+  res.send(out);
 });
 
 router.post("/updatetask", async (req, res) => {
@@ -46,19 +59,19 @@ router.post("/updatetask", async (req, res) => {
   );
 
   //for subtask deletion
-  const out2 = await pool.query(
-    "DELETE FROM public.SubTask where taskid = $1",
-    [uid]
-  );
+  // const out2 = await pool.query(
+  //   "DELETE FROM public.SubTask where taskid = $1",
+  //   [uid]
+  // );
 
-  //for new subtask insertion
-  const out3 = await pool.query(
-    format(
-      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
-      subTasks
-    ),
-    []
-  );
+  // //for new subtask insertion
+  // const out3 = await pool.query(
+  //   format(
+  //     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
+  //     subTasks
+  //   ),
+  //   []
+  // );
 
   res.send(out);
 });
@@ -124,12 +137,6 @@ router.delete("/delsubject", async (req, res) => {
 router.post("/updatesubtasks", async (req, res) => {
   const task = req.query.taskDets;
   const subTasks = req.query.subTasks;
-
-  //for task updation
-  const out = await pool.query(
-    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 WHERE taskid = $2;',
-    [uid, taskid, task, subject, desc, deadline, completed, precentComp]
-  );
 
   //for subtask deletion
   const out2 = await pool.query(
