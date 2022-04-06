@@ -77,61 +77,45 @@ router.delete("/deltask", async (req, res) => {
 
 //routes for Subject
 router.post("/newsubject", async (req, res) => {
-  const taskDets = req.query.taskDets;
-  const subTasks = req.query.subTasks;
+  const subject = req.body.subject;
+  const date = req.body.date;
   const out = await pool.query(
-    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-    []
-  );
-
-  const out2 = await pool.query(
-    format(
-      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
-      subTasks
-    ),
-    []
+    'INSERT INTO public."subjects"(id, subject, date) VALUES (uuid_generate_v4(), $1, $2)',
+    [subject, date]
   );
 
   res.send(out2);
 });
 
 router.post("/updatesubject", async (req, res) => {
-  const task = req.query.taskDets;
-  const subTasks = req.query.subTasks;
+  const { subject, date, id } = req.body;
 
   //for task updation
   const out = await pool.query(
-    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 WHERE taskid = $2;',
-    [uid, taskid, task, subject, desc, deadline, completed, precentComp]
+    'UPDATE public."subjects" SET  subject=$1, date= $2 WHERE id = $3;',
+    [id, subject, date]
   );
 
   //for subtask deletion
   const out2 = await pool.query(
-    "DELETE FROM public.SubTask where taskid = $1",
+    'UPDATE public."Task" SET  subject=$1 WHERE subid = $3;',
     [uid]
   );
 
-  //for new subtask insertion
-  const out3 = await pool.query(
-    format(
-      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
-      subTasks
-    ),
-    []
-  );
-
-  res.send(out);
+  res.send(out2);
 });
 
 //delete the task
 router.delete("/delsubject", async (req, res) => {
-  const out1 = await pool.query('DELETE FROM public."Task" where taskid = $1', [
-    uid,
+  const { subId } = req.body;
+  const out1 = await pool.query('DELETE FROM public."subjects" where id = $1', [
+    subId,
   ]);
 
   const out2 = await pool.query(
-    "DELETE FROM public.SubTask where taskid = $1",
-    [uid]
+    'UPDATE public."Task" SET  subject=null WHERE subid = $1;',
+
+    [subId]
   );
 });
 

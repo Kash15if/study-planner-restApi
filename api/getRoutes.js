@@ -44,17 +44,19 @@ router.get("/archived", async (req, res) => {
   res.send(out.rows);
 });
 
-router.get("/subtask", async (req, res) => {
+router.get("/subtask/:taskid", async (req, res) => {
+  const id = req.params.id;
+
   const out = await pool.query(
-    'SELECT taskid, subtaskid, subtask, "desc", link, completed FROM public.subtask;',
-    []
+    'SELECT taskid, subtaskid, subtask, "desc", link, completed FROM public.subtask where taskid = $1;',
+    [id]
   );
   res.send(out.rows);
 });
 
 router.get("/allsubject", async (req, res) => {
   const out = await pool.query(
-    'SELECT uid, taskid, task, subject, "desc", deadline, completed, "precentComp" FROM public.archivedtask',
+    "SELECT id, subject, date FROM public.subjects",
     []
   );
   res.send(out.rows);
