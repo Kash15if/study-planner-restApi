@@ -18,7 +18,7 @@ var format = require("pg-format");
 const pool = require("../models/dbCon");
 
 router.post("/newtask", async (req, res) => {
-  const data = req.body;
+  const data = req.bodey;
   const taskDets = data.taskDets;
   const subTasks = data.subTasks;
 
@@ -150,8 +150,9 @@ router.post("/updatesubject", async (req, res) => {
 });
 
 //delete the task
-router.delete("/delsubject", async (req, res) => {
-  const { id } = req.body;
+router.post("/delsubject", async (req, res) => {
+  const id = req.body.id;
+  console.log(id);
   const out1 = await pool.query('DELETE FROM public."subjects" where id = $1', [
     id,
   ]);
@@ -161,6 +162,8 @@ router.delete("/delsubject", async (req, res) => {
 
     [id]
   );
+
+  res.send(out2);
 });
 
 //update subtasks
