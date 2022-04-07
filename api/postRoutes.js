@@ -24,9 +24,9 @@ router.post("/newtask", async (req, res) => {
 
   const stArray = subTasks.map((y) => Object.values(y));
 
-  console.log(subTasks);
+  // console.log(subTasks);
   const out = await pool.query(
-    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
     [
       taskDets.uid,
       taskDets.taskid,
@@ -36,6 +36,8 @@ router.post("/newtask", async (req, res) => {
       taskDets.deadline,
       taskDets.completed,
       taskDets.precentComp,
+      taskDets.subid,
+      taskDets.startdate,
     ]
   );
 
@@ -51,13 +53,37 @@ router.post("/newtask", async (req, res) => {
 });
 
 router.post("/updatetask", async (req, res) => {
-  const task = req.query.taskDets;
-  const subTasks = req.query.subTasks;
+  const data = req.body;
+  const taskDets = data.taskDets;
+  const subTasks = data.subTasks;
 
+  const {
+    uid,
+    taskid,
+    task,
+    subject,
+    desc,
+    deadline,
+    completed,
+    precentComp,
+    subid,
+    startdate,
+  } = taskDets;
   //for task updation
   const out = await pool.query(
-    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 WHERE taskid = $2;',
-    [uid, taskid, task, subject, desc, deadline, completed, precentComp]
+    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 , subid=$9, startdate = $10 WHERE taskid = $2;',
+    [
+      uid,
+      taskid,
+      task,
+      subject,
+      desc,
+      deadline,
+      completed,
+      precentComp,
+      subid,
+      startdate,
+    ]
   );
 
   //for subtask deletion
@@ -80,13 +106,16 @@ router.post("/updatetask", async (req, res) => {
 
 //delete the task
 router.delete("/deltask", async (req, res) => {
+  const data = req.body;
+  const tid = data.taskDets.taskid;
+
   const out1 = await pool.query('DELETE FROM public."Task" where taskid = $1', [
-    uid,
+    tid,
   ]);
 
   const out2 = await pool.query(
     "DELETE FROM public.SubTask where taskid = $1",
-    [uid]
+    [tid]
   );
 });
 
@@ -99,7 +128,7 @@ router.post("/newsubject", async (req, res) => {
     [subject, date]
   );
 
-  res.send(out2);
+  res.send(out);
 });
 
 router.post("/updatesubject", async (req, res) => {
@@ -108,37 +137,37 @@ router.post("/updatesubject", async (req, res) => {
   //for task updation
   const out = await pool.query(
     'UPDATE public."subjects" SET  subject=$1, date= $2 WHERE id = $3;',
-    [id, subject, date]
+    [subject, date, id]
   );
 
-  //for subtask deletion
+  // for subtask deletion
   const out2 = await pool.query(
-    'UPDATE public."Task" SET  subject=$1 WHERE subid = $3;',
-    [uid]
+    'UPDATE public."Task" SET  subject=$1 WHERE subid = $2;',
+    [subject, id]
   );
 
-  res.send(out2);
+  res.send(out);
 });
 
 //delete the task
 router.delete("/delsubject", async (req, res) => {
-  const { subId } = req.body;
+  const { id } = req.body;
   const out1 = await pool.query('DELETE FROM public."subjects" where id = $1', [
-    subId,
+    id,
   ]);
 
   const out2 = await pool.query(
     'UPDATE public."Task" SET  subject=null WHERE subid = $1;',
 
-    [subId]
+    [id]
   );
 });
 
 //update subtasks
 
 router.post("/updatesubtasks", async (req, res) => {
-  const task = req.query.taskDets;
-  const subTasks = req.query.subTasks;
+  const subject = req.body.subject;
+  const date = req.body.date;
 
   //for subtask deletion
   const out2 = await pool.query(
@@ -149,13 +178,13 @@ router.post("/updatesubtasks", async (req, res) => {
   //for new subtask insertion
   const out3 = await pool.query(
     format(
-      'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp") VALUES %L',
+      'INSERT INTO public."subtask"(taskid, subtaskid, subtask, "desc", link, completed) VALUES %L',
       subTasks
     ),
     []
   );
 
-  res.send(out);
+  res.send(out3);
 });
 
 module.exports = router;
