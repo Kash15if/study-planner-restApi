@@ -18,28 +18,36 @@ var format = require("pg-format");
 const pool = require("../models/dbCon");
 
 router.post("/newtask", async (req, res) => {
-  const data = req.bodey;
+  const data = req.body;
   const taskDets = data.taskDets;
   const subTasks = data.subTasks;
 
-  const stArray = subTasks.map((y) => Object.values(y));
+  console.log(taskDets);
 
   // console.log(subTasks);
   const out = await pool.query(
-    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+    'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate) VALUES ($1, uuid_generate_v4(), $2, $3, $4, $5, $6, $7, $8, $9) returning taskid',
     [
       taskDets.uid,
-      taskDets.taskid,
       taskDets.task,
       taskDets.subject,
-      taskDets.desc,
-      taskDets.deadline,
+      taskDets.description,
+      taskDets.todate,
       taskDets.completed,
       taskDets.precentComp,
       taskDets.subid,
-      taskDets.startdate,
+      taskDets.fromdate,
     ]
   );
+
+  const taskidFromDb = out.rows.taskid;
+
+  const stArray = subTasks.map((y) => {
+    console.log(taskidFromDb);
+    return Object.values({ ...y, taskid: taskidFromDb });
+  });
+
+  console.log(stArray);
 
   const out2 = await pool.query(
     format(
