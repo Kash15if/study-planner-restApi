@@ -22,8 +22,6 @@ router.post("/newtask", async (req, res) => {
   const taskDets = data.taskDets;
   const subTasks = data.subTasks;
 
-  console.log(taskDets);
-
   // console.log(subTasks);
   const out = await pool.query(
     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate) VALUES ($1, uuid_generate_v4(), $2, $3, $4, $5, $6, $7, $8, $9) returning taskid',
@@ -40,18 +38,24 @@ router.post("/newtask", async (req, res) => {
     ]
   );
 
-  const taskidFromDb = out.rows.taskid;
+  const taskidFromDb = out.rows[0].taskid;
 
-  const stArray = subTasks.map((y) => {
-    console.log(taskidFromDb);
+  // console.log(out.rows);
+
+  await subTasks.forEach((item) => {
+    item = {
+      ...item,
+      taskid: taskidFromDb,
+    };
+  });
+
+  const stArray = await subTasks.map((y) => {
     return Object.values({ ...y, taskid: taskidFromDb });
   });
 
-  console.log(stArray);
-
   const out2 = await pool.query(
     format(
-      'INSERT INTO public."subtask"(taskid, subtaskid, subtask, "desc", link, completed) VALUES %L',
+      'INSERT INTO public."subtask"(subtaskid , taskid,  subtask, "desc", link, completed) VALUES %L',
       stArray
     ),
     []
@@ -131,6 +135,7 @@ router.delete("/deltask", async (req, res) => {
 router.post("/newsubject", async (req, res) => {
   const subject = req.body.subject;
   const date = req.body.date;
+
   const out = await pool.query(
     'INSERT INTO public."subjects"(id, subject, date) VALUES (uuid_generate_v4(), $1, $2)',
     [subject, date]
@@ -160,7 +165,7 @@ router.post("/updatesubject", async (req, res) => {
 //delete the task
 router.post("/delsubject", async (req, res) => {
   const id = req.body.id;
-  console.log(id);
+
   const out1 = await pool.query('DELETE FROM public."subjects" where id = $1', [
     id,
   ]);
