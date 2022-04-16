@@ -73,7 +73,6 @@ router.post("/newtask", async (req, res) => {
 router.post("/updatetask", async (req, res) => {
   const data = req.body;
   const taskDets = data.taskDets;
-  const subTasks = data.subTasks;
 
   const {
     uid,
@@ -85,11 +84,11 @@ router.post("/updatetask", async (req, res) => {
     completed,
     precentComp,
     subid,
-    startdate,
+    fromdate,
   } = taskDets;
   //for task updation
   const out = await pool.query(
-    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 , subid=$9, startdate = $10 WHERE taskid = $2;',
+    'UPDATE public."Task" SET uid=$1, taskid=$2, task=$3, subject=$4, "desc"=$5, deadline=$6, completed=$7, "precentComp"=$8 , subid=$9, startdate = $10 WHERE taskid = $2 AND Uid = $1;',
     [
       uid,
       taskid,
@@ -100,7 +99,7 @@ router.post("/updatetask", async (req, res) => {
       completed,
       precentComp,
       subid,
-      startdate,
+      fromdate,
     ]
   );
 
@@ -123,7 +122,7 @@ router.post("/updatetask", async (req, res) => {
 });
 
 //delete the task
-router.delete("/deltask", async (req, res) => {
+router.post("/deltask", async (req, res) => {
   const data = req.body;
   const tid = data.taskDets.taskid;
 
@@ -135,6 +134,8 @@ router.delete("/deltask", async (req, res) => {
     "DELETE FROM public.SubTask where taskid = $1",
     [tid]
   );
+
+  res.send(out2);
 });
 
 //routes for Subject
