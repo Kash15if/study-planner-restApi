@@ -22,7 +22,6 @@ router.post("/newtask", async (req, res) => {
   const taskDets = data.taskDets;
   const subTasks = data.subTasks;
 
-  // console.log(subTasks);
   const out = await pool.query(
     'INSERT INTO public."Task"(uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate) VALUES ($1, uuid_generate_v4(), $2, $3, $4, $5, $6, $7, $8, $9) returning taskid',
     [
@@ -42,15 +41,22 @@ router.post("/newtask", async (req, res) => {
 
   // console.log(out.rows);
 
-  await subTasks.forEach((item) => {
-    item = {
-      ...item,
-      taskid: taskidFromDb,
-    };
-  });
+  // await subTasks.forEach((item) => {
+  //   item = {
+  //     ...item,
+  //     taskid: taskidFromDb,
+  //   };
+  // });
 
   const stArray = await subTasks.map((y) => {
-    return Object.values({ ...y, taskid: taskidFromDb });
+    return Object.values({
+      taskid: taskidFromDb,
+      subtaskid: y.subtaskid,
+      subtask: y.subtask,
+      desc: y.desc,
+      link: y.link,
+      completed: y.completed,
+    });
   });
 
   const out2 = await pool.query(
@@ -182,20 +188,32 @@ router.post("/delsubject", async (req, res) => {
 //update subtasks
 
 router.post("/updatesubtasks", async (req, res) => {
-  const subject = req.body.subject;
-  const date = req.body.date;
+  const data = req.body;
+  const taskidIn = data.id;
+  const subTasks = data.subTasks;
+
+  const stArray = await subTasks.map((y) => {
+    return Object.values({
+      taskid: taskidIn,
+      subtaskid: y.subtaskid,
+      subtask: y.subtask,
+      desc: y.desc,
+      link: y.link,
+      completed: y.completed,
+    });
+  });
 
   //for subtask deletion
   const out2 = await pool.query(
     "DELETE FROM public.SubTask where taskid = $1",
-    [uid]
+    [taskidIn]
   );
 
   //for new subtask insertion
   const out3 = await pool.query(
     format(
       'INSERT INTO public."subtask"(taskid, subtaskid, subtask, "desc", link, completed) VALUES %L',
-      subTasks
+      stArray
     ),
     []
   );

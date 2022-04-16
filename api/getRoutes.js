@@ -6,7 +6,7 @@ const pool = require("../models/dbCon");
 
 router.get("/alltask", async (req, res) => {
   const out = await pool.query(
-    'SELECT uid, taskid, task, subject, "desc", deadline, completed, "precentComp", subid, startdate FROM public."Task" limit 5;',
+    'SELECT uid, taskid, task, subject, "desc", deadline, completed, round("precentComp"::numeric, 1 ) as "precentComp" , subid, startdate AS fromdate FROM public."Task";',
     []
   );
   res.send(out.rows);
