@@ -17,13 +17,16 @@ pool.connect().then((row) => {
 const cors = require("cors");
 const corsOpts = {
   origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+  // origin: "*",
 
-  methods: ["GET", "POST"],
+  // methods: ["GET", "POST"],
 
-  allowedHeaders: ["Content-Type"],
+  // allowedHeaders: ["Content-Type"],
 };
 
-app.use(cors(corsOpts));
+app.use(cors());
 
 const AllGetROutes = require("./api/getRoutes");
 const AllPostRoutes = require("./api/postRoutes");
