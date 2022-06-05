@@ -30,4 +30,5 @@ const AllPostRoutes = require("./api/postRoutes");
 app.use("/get", AllGetROutes);
 app.use("/post", AllPostRoutes);
 
-app.listen(3000);
+const port = process.env.PORT || 3000;
+app.listen(port);
